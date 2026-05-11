@@ -1,0 +1,4 @@
+Django>=5.0,<5.1
+psycopg2-binary   #driver para o postgressqL
+python-dotenv           
+django-extensions        
