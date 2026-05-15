@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Agendaí</title>
+
+  <!-- ICONS -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  >
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- MENU CONTA -->
+  <div class="overlay" id="overlay"></div>
+
+  <div class="menu-conta" id="menuConta">
+
+    <div class="topo-conta">
+
+      <div class="fechar" id="fecharMenu">
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+
+      <p class="email" id="emailConta">
+  usuario@gmail.com
+</p>
+
+
+      <img
+        src="https://i.imgur.com/8Km9tLL.jpg"
+        class="foto-grande"
+      >
+
+      <h1 id="saudacao">
+  Olá!
+</h1>
+
+      <button class="btn-google">
+        Gerenciar sua Conta do Google
+      </button>
+
+    </div>
+
+    <div class="cards-menu">
+
+      <div class="card-menu">
+        <i class="fa-solid fa-cloud"></i>
+        <span id="ultimaSync">
+         Última sincronização: Agora mesmo
+        </span>
+        </div>
+      <div class="card-menu" id="abrirConfig">
+  <i class="fa-solid fa-gear"></i>
+  <span>Configurações do Contatos</span>
+</div>
+       <div class="card-menu" id="abrirAjuda">
+        <i class="fa-regular fa-circle-question"></i>
+        <span>Ajuda e feedback</span>
+       </div>
+    </div>
+
+  </div>
+
+  <!-- APP -->
+  <div class="app">
+
+    <!-- TOPO -->
+    <header class="topo">
+
+      <div class="barra-pesquisa">
+
+        <i class="fa-solid fa-magnifying-glass"></i>
+
+        <input
+          type="text"
+          id="pesquisa"
+          placeholder="Pesquisar contatos"
+        >
+
+        <img
+          src="https://i.imgur.com/8Km9tLL.jpg"
+          class="foto-perfil"
+          id="abrirMenu"
+        >
+
+      </div>
+
+    </header>
+
+    <!-- CONTATOS -->
+    <main class="contatos-container">
+
+<div class="titulo-lista">
+
+  <div class="titulo-esquerda">
+    <i class="fa-solid fa-users"></i>
+    <span>Todos os contatos</span>
+  </div>
+
+  <div class="total-contatos" id="totalContatos">
+    0 contatos
+  </div>
+
+</div>
+      <div id="pendencias"></div>
+      <div id="listaContatos"></div>
+
+    </main>
+
+    <!-- BOTÃO FLUTUANTE -->
+    <button class="fab" id="abrirModal">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal" id="modal">
+
+    <div class="modal-content">
+
+      <h2>Novo Contato</h2>
+
+      <input
+        type="text"
+        id="nome"
+        placeholder="Nome"
+      >
+
+      <input
+        type="text"
+        id="numero"
+        placeholder="Número"
+      >
+
+      <input
+        type="email"
+        id="email"
+        placeholder="Email (Opcional)"
+      >
+      <select id="frequencia">
+
+  <option value="7">
+    Semanal
+  </option>
+
+  <option value="15">
+    Quinzenal
+  </option>
+
+  <option value="30">
+    Mensal
+  </option>
+
+</select>
+      <div class="botoes-modal">
+
+        <button class="cancelar" id="fecharModal">
+          Cancelar
+        </button>
+
+        <button class="salvar" id="salvarContato">
+          Salvar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+<!-- CONFIGURAÇÕES -->
+
+<div class="config-modal" id="configModal">
+
+  <div class="config-content">
+
+    <div class="config-topo">
+
+      <h2>Configurações</h2>
+
+      <button id="fecharConfig">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+    </div>
+
+    <!-- EXIBIÇÃO -->
+
+    <div class="secao-config">
+
+      <h3>Exibição</h3>
+
+      <!-- ORDENAÇÃO -->
+      <label>Ordenar por</label>
+
+      <select id="ordenarPor">
+        <option value="nome">
+          Nome
+        </option>
+
+        <option value="sobrenome">
+          Sobrenome
+        </option>
+      </select>
+
+      <!-- FORMATO -->
+      <label>Formato do Nome</label>
+
+      <select id="formatoNome">
+
+        <option value="primeiroNome">
+          Primeiro o Nome
+        </option>
+         <option value="primeiroSobrenome">
+          Primeiro o Sobrenome
+        </option>
+      </select>
+
+      <!-- TEMA -->
+      <label>Tema</label>
+
+      <select id="tema">
+
+        <option value="sistema">
+          Padrão do Sistema
+        </option>
+
+        <option value="claro">
+          Claro
+        </option>
+
+        <option value="escuro">
+          Escuro
+        </option>
+
+      </select>
+
+    </div>
+
+    <!-- EDITAR CONTATOS -->
+
+    <div class="secao-config">
+
+      <h3>Editar Contatos</h3>
+
+      <!-- EMAIL -->
+      <label>
+        Conta Principal para novos contatos
+      </label>
+
+      <input
+        type="email"
+        id="contaPrincipal"
+        placeholder="exemplo@gmail.com"
+      >
+
+      <!-- NOME FONÉTICO -->
+      <label>
+        Nome Fonético
+      </label>
+
+      <select id="nomeFonetico">
+
+        <option value="mostrar">
+          Mostrar sempre
+        </option>
+
+        <option value="ocultar">
+          Ocultar caso não tenha
+        </option>
+
+      </select>
+
+    </div>
+
+    <button class="salvar-config" id="salvarConfig">
+      Salvar Configurações
+    </button>
+
+  </div>
+
+</div>
+<!-- MODAL CONTAS GOOGLE -->
+
+<div class="google-modal" id="googleModal">
+
+  <div class="google-content">
+
+    <div class="google-topo">
+
+      <h2>Selecionar Conta</h2>
+
+      <button id="fecharGoogle">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+    </div>
+
+    <!-- LISTA CONTAS -->
+    <div id="listaGoogle"></div>
+
+    <!-- ADICIONAR CONTA -->
+    <div class="nova-conta">
+
+      <input
+        type="email"
+        id="novaContaGoogle"
+        placeholder="Adicionar conta Google"
+      >
+
+      <button id="adicionarContaGoogle">
+        Adicionar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+<!-- MODAL AJUDA -->
+
+<div class="ajuda-modal" id="ajudaModal">
+
+  <div class="ajuda-content">
+
+    <div class="ajuda-topo">
+
+      <h2>Ajuda</h2>
+
+      <button id="fecharAjuda">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+    </div>
+
+    <div class="ajuda-secao">
+
+      <h3>
+        📱 Como adicionar um contato
+      </h3>
+
+      <p>
+        Clique no botão "+" no canto inferior da tela.
+        Depois preencha nome, número e frequência do contato.
+      </p>
+
+    </div>
+
+    <div class="ajuda-secao">
+
+      <h3>
+        ✏️ Como editar um contato
+      </h3>
+
+      <p>
+        Clique no ícone de lápis ao lado do contato.
+        As informações serão carregadas automaticamente.
+      </p>
+
+    </div>
+
+    <div class="ajuda-secao">
+
+      <h3>
+        ✅ Como marcar contato realizado
+      </h3>
+
+      <p>
+        Clique no ícone de confirmação para atualizar
+        a data do último contato realizado.
+      </p>
+
+    </div>
+
+    <div class="ajuda-secao">
+
+      <h3>
+        🔍 Como pesquisar contatos
+      </h3>
+
+      <p>
+        Utilize a barra de pesquisa no topo da tela
+        para encontrar contatos rapidamente.
+      </p>
+
+    </div>
+
+    <div class="ajuda-secao">
+
+      <h3>
+        ⏰ Clientes pendentes
+      </h3>
+
+      <p>
+        O sistema mostra automaticamente quais clientes
+        precisam de contato com base na frequência definida.
+      </p>
+
+    </div>
+
+    <!-- FEEDBACK -->
+
+    <div class="feedback-box">
+
+      <h3>
+        ⭐ Enviar Feedback
+      </h3>
+
+      <div class="estrelas">
+
+        <i class="fa-regular fa-star estrela" data-nota="1"></i>
+
+        <i class="fa-regular fa-star estrela" data-nota="2"></i>
+
+        <i class="fa-regular fa-star estrela" data-nota="3"></i>
+
+        <i class="fa-regular fa-star estrela" data-nota="4"></i>
+
+        <i class="fa-regular fa-star estrela" data-nota="5"></i>
+
+      </div>
+
+      <textarea
+        id="textoFeedback"
+        placeholder="Escreva seu feedback..."
+      ></textarea>
+
+      <button id="enviarFeedback">
+        Enviar Feedback
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+<script src="script.js"></script>
+
+</body>
+</html>

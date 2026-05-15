@@ -1,0 +1,930 @@
+*{*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+  background:#1f1414;
+  color:white;
+}
+
+.app{
+  max-width:500px;
+  margin:auto;
+  min-height:100vh;
+  position:relative;
+}
+
+/* TOPO */
+
+.topo{
+  padding:20px;
+}
+
+.barra-pesquisa{
+  background:#5a4a4a;
+  border-radius:40px;
+  padding:12px 15px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.barra-pesquisa i{
+  color:#ddd;
+}
+
+.barra-pesquisa input{
+  flex:1;
+  border:none;
+  background:none;
+  outline:none;
+  color:white;
+  font-size:16px;
+}
+
+.barra-pesquisa input::placeholder{
+  color:#ddd;
+}
+
+.foto-perfil{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  cursor:pointer;
+  object-fit:cover;
+}
+
+/* TITULO */
+
+.titulo-lista{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 20px;
+  margin-top:10px;
+  margin-bottom:20px;
+  color:#f1dede;
+  font-weight:bold;
+}
+
+/* CONTATOS */
+
+#listaContatos{
+  padding:0 15px 100px;
+}
+
+.contato{
+  background:#4d3f3f;
+  border-radius:18px;
+  padding:15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+
+.info-contato{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.avatar{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  background:#7c3aed;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.nome{
+  font-size:18px;
+}
+
+.numero{
+  color:#d6d6d6;
+  font-size:14px;
+  margin-top:4px;
+}
+
+.acoes{
+  display:flex;
+  gap:10px;
+}
+
+.acoes button{
+  border:none;
+  background:none;
+  color:white;
+  cursor:pointer;
+  font-size:18px;
+}
+
+/* BOTÃO FLUTUANTE */
+
+.fab{
+  position:fixed;
+  bottom:25px;
+  right:25px;
+  width:70px;
+  height:70px;
+  border:none;
+  border-radius:20px;
+  background:#9c3b2f;
+  color:white;
+  font-size:28px;
+  cursor:pointer;
+  box-shadow:0 5px 20px rgba(0,0,0,0.4);
+}
+
+/* MODAL */
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+
+.modal-content{
+  width:100%;
+  max-width:400px;
+  background:#2b1f1f;
+  padding:25px;
+  border-radius:20px;
+}
+
+.modal-content h2{
+  margin-bottom:20px;
+}
+
+.modal-content input{
+  width:100%;
+  padding:14px;
+  margin-bottom:15px;
+  border:none;
+  border-radius:12px;
+  background:#4d3f3f;
+  color:white;
+  outline:none;
+}
+
+.botoes-modal{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+}
+
+.cancelar{
+  background:#666;
+}
+
+.salvar{
+  background:#9c3b2f;
+}
+
+.botoes-modal button{
+  border:none;
+  padding:12px 18px;
+  border-radius:10px;
+  color:white;
+  cursor:pointer;
+}
+
+/* MENU CONTA */
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  display:none;
+  z-index:9;
+}
+
+.menu-conta{
+  position:fixed;
+  top:0;
+  right:-100%;
+  width:100%;
+  max-width:420px;
+  height:100%;
+  background:#2b1f1f;
+  z-index:10;
+  transition:0.4s;
+  overflow:auto;
+}
+
+.menu-conta.ativo{
+  right:0;
+}
+
+.overlay.ativo{
+  display:block;
+}
+
+.topo-conta{
+  padding:30px 20px;
+  text-align:center;
+}
+
+.fechar{
+  position:absolute;
+  right:20px;
+  top:20px;
+  font-size:30px;
+  cursor:pointer;
+}
+
+.email{
+  margin-bottom:20px;
+  color:#ddd;
+}
+
+.foto-grande{
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  object-fit:cover;
+  margin-bottom:20px;
+}
+
+.btn-google{
+  margin-top:20px;
+  padding:14px 20px;
+  border-radius:30px;
+  border:2px solid #c8a9a9;
+  background:none;
+  color:#ffc7c7;
+  cursor:pointer;
+}
+
+.cards-menu{
+  padding:20px;
+}
+
+.card-menu{
+  background:#140b0b;
+  border-radius:20px;
+  padding:22px;
+  display:flex;
+  align-items:center;
+  gap:15px;
+  margin-bottom:15px;
+  font-size:17px;
+}
+/* ======================================
+   RESPONSIVIDADE
+====================================== */
+
+/* TABLET */
+
+@media (max-width: 768px){
+
+  .config-content,
+  .google-content,
+  .modal-content{
+    width:100%;
+    max-width:100%;
+    border-radius:20px;
+  }
+
+  .menu-conta{
+    max-width:100%;
+  }
+
+}
+
+/* CELULAR PEQUENO */
+
+@media (max-width: 480px){
+
+  .barra-pesquisa{
+    padding:10px 12px;
+  }
+
+  .barra-pesquisa input{
+    font-size:14px;
+  }
+
+  .foto-perfil{
+    width:35px;
+    height:35px;
+  }
+
+  .titulo-lista{
+    font-size:15px;
+  }
+
+  .contato{
+    padding:12px;
+  }
+
+  .avatar{
+    width:45px;
+    height:45px;
+    font-size:18px;
+  }
+
+  .nome{
+    font-size:16px;
+  }
+
+  .numero{
+    font-size:13px;
+  }
+
+  .fab{
+    width:60px;
+    height:60px;
+    font-size:24px;
+  }
+
+  .extras-grid{
+    grid-template-columns:1fr;
+  }
+
+  .extra-btn{
+    font-size:16px;
+    padding:16px;
+  }
+
+}
+
+/* NOTEBOOK E PC */
+
+@media (min-width: 1024px){
+
+  body{
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:30px;
+  }
+
+  .app{
+    width:100%;
+    max-width:500px;
+    border-radius:30px;
+    overflow:hidden;
+    box-shadow:
+      0 10px 40px rgba(0,0,0,0.4);
+  }
+
+  .menu-conta{
+    border-radius:30px 0 0 30px;
+  }
+
+  .config-content,
+  .google-content,
+  .modal-content{
+    max-width:500px;
+  }
+
+}
+
+/* TELAS MUITO GRANDES */
+
+@media (min-width: 1440px){
+
+  .app{
+    max-width:550px;
+  }
+
+}
+/* CONFIGURAÇÕES */
+
+.config-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:20;
+  padding:20px;
+}
+
+.config-content{
+  width:100%;
+  max-width:450px;
+  max-height:90vh;
+  overflow:auto;
+  background:#2b1f1f;
+  border-radius:25px;
+  padding:25px;
+}
+
+.config-topo{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.config-topo button{
+  background:none;
+  border:none;
+  color:white;
+  font-size:28px;
+  cursor:pointer;
+}
+
+.secao-config{
+  margin-bottom:30px;
+}
+
+.secao-config h3{
+  margin-bottom:20px;
+  color:#ffc7c7;
+}
+
+.secao-config label{
+  display:block;
+  margin-bottom:8px;
+  margin-top:15px;
+  color:#ddd;
+}
+
+.secao-config select,
+.secao-config input{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:#4d3f3f;
+  color:white;
+  outline:none;
+}
+
+.salvar-config{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:15px;
+  background:#9c3b2f;
+  color:white;
+  font-size:17px;
+  cursor:pointer;
+}
+/* ======================================
+   TEMAS
+====================================== */
+
+/* TEMA CLARO */
+
+body.tema-claro{
+  background:#f5f5f5;
+  color:#111;
+}
+
+body.tema-claro .barra-pesquisa{
+  background:#dddddd;
+}
+
+body.tema-claro .barra-pesquisa input{
+  color:#111;
+}
+
+body.tema-claro .barra-pesquisa input::placeholder{
+  color:#555;
+}
+
+body.tema-claro .contato{
+  background:#ffffff;
+  color:#111;
+}
+
+body.tema-claro .numero{
+  color:#444;
+}
+
+body.tema-claro .titulo-lista{
+  color:#111;
+}
+
+body.tema-claro .menu-conta,
+body.tema-claro .modal-content,
+body.tema-claro .config-content,
+body.tema-claro .google-content{
+  background:#ffffff;
+  color:#111;
+}
+
+body.tema-claro .card-menu{
+  background:#eeeeee;
+  color:#111;
+}
+
+body.tema-claro .secao-config input,
+body.tema-claro .secao-config select,
+body.tema-claro .modal-content input,
+body.tema-claro .nova-conta input{
+  background:#eeeeee;
+  color:#111;
+}
+
+body.tema-claro .extra-btn{
+  background:#c55b4c;
+}
+
+body.tema-claro .google-conta{
+  background:#eeeeee;
+  color:#111;
+}
+
+/* TEMA ESCURO */
+
+body.tema-escuro{
+  background:#1f1414;
+  color:white;
+}
+/* TEXTOS DO TOPO NO TEMA CLARO */
+
+body.tema-claro .email{
+  color:#111;
+}
+
+body.tema-claro .btn-google{
+  color:#111;
+  border-color:#111;
+}
+body.tema-claro .btn-google:hover{
+  background:#111;
+  color:white;
+}
+/* TEXTOS DAS CONFIGURAÇÕES NO TEMA CLARO */
+
+body.tema-claro .secao-config h3{
+  color:#111;
+}
+
+body.tema-claro .secao-config label{
+  color:#111;
+}
+/* GOOGLE CONTAS */
+
+.google-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:30;
+  padding:20px;
+}
+
+.google-content{
+  width:100%;
+  max-width:420px;
+  background:#2b1f1f;
+  border-radius:25px;
+  padding:25px;
+}
+
+.google-topo{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.google-topo button{
+  background:none;
+  border:none;
+  color:white;
+  font-size:28px;
+  cursor:pointer;
+}
+
+.google-conta{
+  background:#140b0b;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:12px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.google-conta:hover{
+  background:#241414;
+}
+
+.google-email{
+  font-size:17px;
+}
+
+.nova-conta{
+  margin-top:20px;
+}
+
+.nova-conta input{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:#4d3f3f;
+  color:white;
+  margin-bottom:12px;
+}
+
+.nova-conta button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:#9c3b2f;
+  color:white;
+  cursor:pointer;
+}
+/* ======================================
+   GOOGLE CONTAS
+====================================== */
+
+.google-info{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  width:100%;
+}
+
+.remover-google{
+  background:none;
+  border:none;
+  color:#ff5c5c;
+  cursor:pointer;
+  font-size:16px;
+}
+
+.remover-google:hover{
+  transform:scale(1.1);
+}
+/* ======================================
+   PENDÊNCIAS
+====================================== */
+
+#pendencias{
+  margin-bottom:20px;
+}
+
+.titulo-pendencias{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+
+.card-pendencia{
+  background:#ffdddd;
+  color:#8b0000;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+
+.sem-pendencias{
+  background:#ddffdd;
+  color:#006400;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+/* ===================================== */
+/* ÍCONES NO TEMA CLARO */
+/* ===================================== */
+
+.tema-claro .acoes button i{
+
+  color: #000;
+
+}
+/* ======================================
+AJUDA
+====================================== */
+
+.ajuda-modal{
+
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0,0,0,0.6);
+
+  display: none;
+
+  justify-content: center;
+  align-items: center;
+
+  z-index: 999;
+
+}
+
+.ajuda-content{
+
+  width: 90%;
+  max-height: 85vh;
+
+  overflow-y: auto;
+
+  background: #2b1b1b;
+
+  border-radius: 25px;
+
+  padding: 20px;
+
+  color: white;
+
+}
+
+.ajuda-topo{
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 20px;
+
+}
+
+.ajuda-topo button{
+
+  background: none;
+  border: none;
+
+  color: white;
+
+  font-size: 22px;
+
+  cursor: pointer;
+
+}
+
+.ajuda-secao{
+
+  background: rgba(255,255,255,0.05);
+
+  padding: 15px;
+
+  border-radius: 18px;
+
+  margin-bottom: 15px;
+
+}
+
+.ajuda-secao h3{
+
+  margin-bottom: 8px;
+
+  font-size: 18px;
+
+}
+
+.ajuda-secao p{
+
+  font-size: 14px;
+
+  line-height: 1.5;
+
+  opacity: 0.9;
+
+}
+/* ======================================
+FEEDBACK
+====================================== */
+
+.feedback-box{
+
+  margin-top: 25px;
+
+  background: rgba(255,255,255,0.05);
+
+  padding: 18px;
+
+  border-radius: 20px;
+
+}
+
+.feedback-box h3{
+
+  margin-bottom: 15px;
+
+}
+
+.estrelas{
+
+  display: flex;
+
+  gap: 10px;
+
+  margin-bottom: 15px;
+
+}
+
+.estrela{
+
+  font-size: 28px;
+
+  cursor: pointer;
+
+  color: gold;
+
+  transition: 0.2s;
+
+}
+
+.estrela:hover{
+
+  transform: scale(1.1);
+
+}
+
+#textoFeedback{
+
+  width: 100%;
+
+  height: 120px;
+
+  border: none;
+
+  outline: none;
+
+  resize: none;
+
+  border-radius: 15px;
+
+  padding: 15px;
+
+  margin-bottom: 15px;
+
+  background: rgba(255,255,255,0.08);
+
+  color: white;
+
+  font-size: 15px;
+
+}
+
+#enviarFeedback{
+
+  width: 100%;
+
+  border: none;
+
+  padding: 14px;
+
+  border-radius: 15px;
+
+  font-size: 15px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  background: #b54b42;
+
+  color: white;
+
+}
+.titulo-lista{
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+}
+
+.titulo-esquerda{
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+}
+
+.total-contatos{
+
+  font-size: 14px;
+
+  opacity: 0.7;
+
+  font-weight: 600;
+
+}
