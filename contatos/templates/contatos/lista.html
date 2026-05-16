@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Minha Agenda de Contatos</title>
+</head>
+<body>
+    <h1>Lista de Contatos</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>Frequência</th>
+                <th>Último Contato</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contato in contatos %}
+            <tr>
+                <td>{{ contato.nome }}</td>
+                <td>{{ contato.telefone }}</td>
+                <td>{{ contato.get_frequencia_display }}</td>
+                <td>{{ contato.data_ultimo_contato|date:"d/m/Y" }}</td>
+                <td>
+                    {% if contato.precisa_de_contato %}
+                        <strong style="color: red;"> PENDENTE</strong>
+                    {% else %}
+                        <span style="color: green;"> Em dia</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
