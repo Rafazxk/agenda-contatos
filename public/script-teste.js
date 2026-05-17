@@ -1,8 +1,10 @@
-
-// CONFIGURAÇÕES, APIs E ESTADOS GLOBAIS
+// ============================================================================
+// CONFIGURAÇÕES, API E ESTADOS GLOBAIS
+// ============================================================================
 
 let contatos = []; 
 const API_URL = "http://127.0.0.1:8000/agenda/api/contatos/";
+
 let idContatoEmEdicao = null;
 
 const modal = document.getElementById("modal");
@@ -17,7 +19,15 @@ const fecharMenu = document.getElementById("fecharMenu");
 const menuConta = document.getElementById("menuConta");
 const overlay = document.getElementById("overlay");
 
-// VALIDAÇÕES DE SEGURANÇA E REGRAS DE NEGÓCIO
+const authModal = document.getElementById("authModal");
+const areaLogin = document.getElementById("area-login");
+const areaCadastro = document.getElementById("area-cadastro");
+const areaRecuperar = document.getElementById("area-recuperar");
+
+
+// ============================================================================
+// VALIDAÇÕES DE SEGURANÇA E REGRAS DE NEGÓCIO (FRONT-END)
+// ============================================================================
 
 function validarCenariosDeTeste(nome, numero, email) {
   if (nome.trim() === "" || numero.trim() === "") {
@@ -44,13 +54,33 @@ function validarCenariosDeTeste(nome, numero, email) {
 }
 
 
-// INTEGRAÇÃO COM O BACKEND (FETCH API REST)
+// ============================================================================
+// INTEGRAÇÃO COM O BACKEND (CRUD PROTEGIDO POR JWT)
+// ============================================================================
 
+// Função auxiliar para injetar o token JWT nas requisições do CRUD
+function obterHeadersAutenticados() {
+  const token = localStorage.getItem("token_jwt");
+  return {
+    "Content-Type": "application/json",
+    "Authorization": token ? `Bearer ${token}` : ""
+  };
+}
 
-// GET - Buscar dados do Postgres
+// GET - Buscar dados protegidos do banco
 async function carregarContatosDoBanco() {
   try {
-    const response = await fetch(API_URL);
+    const response = await fetch(API_URL, {
+      method: "GET",
+      headers: obterHeadersAutenticados()
+    });
+
+    if (response.status === 401) {
+      alert("Sessão expirada ou inválida. Por favor, faça login novamente.");
+      window.expirarSessaoInatividade();
+      return;
+    }
+
     if (!response.ok) throw new Error("Erro ao carregar dados do servidor");
     
     contatos = await response.json(); 
@@ -61,7 +91,7 @@ async function carregarContatosDoBanco() {
   }
 }
 
-// Handler central do botão salvar
+// Handler central do botão salvar (POST e PUT)
 if (salvarContato) {
   salvarContato.onclick = async () => {
     const nome = document.getElementById("nome").value;
@@ -82,14 +112,18 @@ if (salvarContato) {
       try {
         const response = await fetch(`${API_URL}editar/${idContatoEmEdicao}/`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: obterHeadersAutenticados(),
           body: JSON.stringify(payload)
         });
 
-        if (!response.ok) throw new Error();
         const res = await response.json();
+
+        if (!response.ok) {
+          alert(res.erro || (res.erros ? Object.values(res.erros)[0] : "Erro ao atualizar contato."));
+          return;
+        }
+
         alert(res.mensagem);
-        
         idContatoEmEdicao = null; 
       } catch (error) {
         alert("Erro ao atualizar contato no servidor.");
@@ -101,12 +135,17 @@ if (salvarContato) {
       try {
         const response = await fetch(`${API_URL}criar/`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: obterHeadersAutenticados(),
           body: JSON.stringify(payload)
         });
 
-        if (!response.ok) throw new Error();
         const res = await response.json();
+
+        if (!response.ok) {
+          alert(res.erro || (res.erros ? Object.values(res.erros)[0] : "Erro ao criar contato."));
+          return;
+        }
+
         alert(res.mensagem);
       } catch (error) {
         alert("Erro ao criar contato no servidor.");
@@ -124,20 +163,25 @@ if (salvarContato) {
   };
 }
 
-// DELETE - Remover do Postgres por ID
+// DELETE - Remover por ID definitivamente do banco
 window.excluirContatoApi = async function(id) {
   const confirmar = confirm("Remover este contato definitivamente do banco?");
   if (!confirmar) return;
 
   try {
     const response = await fetch(`${API_URL}excluir/${id}/`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: obterHeadersAutenticados()
     });
 
-    if (!response.ok) throw new Error();
     const res = await response.json();
-    alert(res.mensagem);
 
+    if (!response.ok) {
+      alert(res.erro || "Não foi possível excluir o contato.");
+      return;
+    }
+
+    alert(res.mensagem);
     await carregarContatosDoBanco();
   } catch (error) {
     console.error("Erro ao deletar:", error);
@@ -163,7 +207,7 @@ window.abrirModalEdicao = function(id) {
   if (modal) modal.style.display = "flex";
 };
 
-// Simulação de check de rotina na memória local da sessão
+// Sincronização manual local da data do último contato feito
 window.marcarContato = function(id) {
   const contato = contatos.find(c => c.id === id);
   if (contato) {
@@ -174,7 +218,9 @@ window.marcarContato = function(id) {
 };
 
 
+// ============================================================================
 // RENDERIZAÇÃO DINÂMICA DA VIEW (DOM)
+// ============================================================================
 
 function renderizarContatos(listaParaExibir = contatos) {
   const listaContatosContainer = document.getElementById("listaContatos");
@@ -223,8 +269,9 @@ function renderizarContatos(listaParaExibir = contatos) {
 }
 
 
+// ============================================================================
 // FILTROS, MENUS, TEMAS E COMPORTAMENTOS VISUAIS
-
+// ============================================================================
 
 if (pesquisa) {
   pesquisa.addEventListener("input", () => {
@@ -289,7 +336,7 @@ function verificarPendencias() {
   });
 }
 
-// Sincronização e Inicialização disparada ao montar a página
+// Sincronização do cabeçalho
 function atualizarSincronizacao() {
   const elemento = document.getElementById("ultimaSync");
   if (!elemento) return;
@@ -297,15 +344,7 @@ function atualizarSincronizacao() {
   elemento.textContent = `Última sincronização: ${agora.getHours().toString().padStart(2, "0")}:${agora.getMinutes().toString().padStart(2, "0")}`;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  carregarContatosDoBanco();
-  atualizarSincronizacao();
-  setInterval(atualizarSincronizacao, 60000);
-});
-
-
-// CONFIGURAÇÕES DO SISTEMA E TEMAS LOCALSTORAGE
-
+// Controle de Configurações e Temas
 const abrirConfig = document.getElementById("abrirConfig");
 const configModal = document.getElementById("configModal");
 const fecharConfig = document.getElementById("fecharConfig");
@@ -343,26 +382,12 @@ function aplicarTema(tema) {
   }
 }
 
-// [Código omitido dos Modais de Ajuda e Feedback por Estrelas para fins de legibilidade, permanecem iguais]
 
+// ============================================================================
+// SISTEMA DE LOGIN, CADASTRO E AUTENTICAÇÃO (SISTEMA INTEGRADO DJANGO)
+// ============================================================================
 
-// SISTEMA DE LOGIN, CADASTRO E RECUPERAÇÃO (CENÁRIOS CA01 ATÉ CA08)
-
-
-const authModal = document.getElementById("authModal");
-const areaLogin = document.getElementById("area-login");
-const areaCadastro = document.getElementById("area-cadastro");
-const areaRecuperar = document.getElementById("area-recuperar");
-
-// Popula dados iniciais de teste se a lista estiver vazia
-let usuariosCadastrados = JSON.parse(localStorage.getItem("usuarios_teste")) || [];
-if (usuariosCadastrados.length === 0) {
-  usuariosCadastrados.push({ email: "usuario@exemplo.com", senha: "@Senha#2026", bloqueado: false });
-  usuariosCadastrados.push({ email: "bloqueado@exemplo.com", senha: "senha123", bloqueado: true });
-  localStorage.setItem("usuarios_teste", JSON.stringify(usuariosCadastrados));
-}
-
-// Alternância entre as telas do formulário
+// Alternância de telas nos formulários de autenticação
 if (document.getElementById("IrParaCadastro")) {
   document.getElementById("IrParaCadastro").onclick = (e) => { e.preventDefault(); areaLogin.style.display = "none"; areaCadastro.style.display = "block"; };
 }
@@ -376,7 +401,7 @@ if (document.getElementById("VoltarAoLogin")) {
   document.getElementById("VoltarAoLogin").onclick = (e) => { e.preventDefault(); areaRecuperar.style.display = "none"; areaLogin.style.display = "block"; };
 }
 
-// Botão para mostrar/ocultar senha (CA06 - Cenário 11)
+// Mostrar/ocultar senha
 if (document.getElementById("btnMostrarSenha")) {
   document.getElementById("btnMostrarSenha").onclick = () => {
     const campoSenha = document.getElementById("loginSenha");
@@ -391,16 +416,14 @@ if (document.getElementById("btnMostrarSenha")) {
   };
 }
 
-// Envio de solicitação de recuperação de senha (CA04)
+// Simulação de solicitação de recuperação de senha
 if (document.getElementById("btnEnviarRecuperacao")) {
   document.getElementById("btnEnviarRecuperacao").onclick = () => {
     const emailInput = document.getElementById("recuperarEmail").value;
-
     if (emailInput.trim() === "") {
       alert("Informe o e-mail");
       return;
     }
-
     alert("Instruções de recuperação de senha enviadas com sucesso!");
     document.getElementById("recuperarEmail").value = "";
     areaRecuperar.style.display = "none";
@@ -408,111 +431,145 @@ if (document.getElementById("btnEnviarRecuperacao")) {
   };
 }
 
-// Submissão do formulário de login com validações de teste
+// Submissão do Login integrado ao Django Rest / JWT Custom
 if (document.getElementById("btnEfetuarLogin")) {
-  document.getElementById("btnEfetuarLogin").onclick = () => {
+  document.getElementById("btnEfetuarLogin").onclick = async () => { 
     let emailInput = document.getElementById("loginEmail").value;
     const senhaInput = document.getElementById("loginSenha").value;
     const lembrarMeCheckbox = document.getElementById("lembrarMe");
 
-    // Valida campos vazios (CA02 - Cenário 04)
     if (emailInput.trim() === "" && senhaInput === "") {
       alert("Preencha todos os campos obrigatórios");
       return;
     }
 
-    // Remove espaços adicionais (CA02 - Cenário 03)
     emailInput = emailInput.trim();
 
-    // Valida formato básico do e-mail (CA03 - Cenário 06)
     if (!emailInput.includes("@") || !emailInput.endsWith(".com")) {
       alert("E-mail inválido");
       return;
     }
 
-    // Valida tamanho mínimo da senha (CA06 - Cenário 12)
-    if (senhaInput.length > 0 && senhaInput.length < 4) {
-      alert("Senha inválida");
-      return;
+    const usernameInput = emailInput.split("@")[0];
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/agenda/api/usuario/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: usernameInput, 
+          password: senhaInput
+        })
+      });
+
+      const dados = await response.json();
+
+      if (!response.ok) {
+        alert(dados.erro || "Falha ao realizar login.");
+        return;
+      }
+
+      alert("Login realizado com sucesso!");
+
+      // Armazenamento estável das chaves JWT obtidas
+      localStorage.setItem("token_jwt", dados.token);
+      localStorage.setItem("usuario_logado", "true");
+
+      if (lembrarMeCheckbox && lembrarMeCheckbox.checked) {
+        localStorage.setItem("sessao_permanente", "true");
+      } else {
+        localStorage.removeItem("sessao_permanente");
+      }
+
+      if (document.getElementById("emailConta")) document.getElementById("emailConta").textContent = emailInput.toLowerCase();
+      if (document.getElementById("saudacao")) {
+        document.getElementById("saudacao").textContent = `Olá, ${usernameInput.charAt(0).toUpperCase() + usernameInput.slice(1)}!`;
+      }
+
+      if (authModal) authModal.style.display = "none";
+      
+      // Carrega os dados reais do CRUD após autenticação completa
+      await carregarContatosDoBanco();
+
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      alert("Não foi possível conectar ao servidor.");
     }
-
-    const emailBusca = emailInput.toLowerCase();
-
-    // Simula bloqueio de conta (CA05 - Cenário 10)
-    if (emailBusca === "usuario@exemplo.com" && senhaInput === "senha123" || emailBusca === "bloqueado@exemplo.com") {
-      alert("Usuário bloqueado");
-      return;
-    }
-
-    // Procura o usuário cadastrado (CA01 - Cenário 02)
-    const contaEncontrada = usuariosCadastrados.find(u => u.email.toLowerCase() === emailBusca);
-
-    if (!contaEncontrada) {
-      alert("Usuário não encontrado");
-      return;
-    }
-
-    // Valida senha cadastrada (Case Sensitive)
-    if (contaEncontrada.senha !== senhaInput) {
-      alert("Senha inválida");
-      return;
-    }
-
-    alert("Login realizado com sucesso!");
-
-    // Guarda persistência de sessão se "Lembrar-me" estiver ativo (CA07 - Cenário 13)
-    if (lembrarMeCheckbox && lembrarMeCheckbox.checked) {
-      localStorage.setItem("sessao_permanente", "true");
-    } else {
-      localStorage.removeItem("sessao_permanente");
-    }
-
-    // Atualiza cabeçalho do usuário autenticado
-    if (document.getElementById("emailConta")) document.getElementById("emailConta").textContent = emailBusca;
-    const nome = emailBusca.split("@")[0];
-    if (document.getElementById("saudacao")) document.getElementById("saudacao").textContent = `Olá, ${nome.charAt(0).toUpperCase() + nome.slice(1)}!`;
-
-    // Salva token de autenticação e esconde o modal (CA08 - Cenário 15)
-    localStorage.setItem("usuario_logado", "true");
-    if (authModal) authModal.style.display = "none";
   };
 }
 
-// Criação de novas contas de teste
+// Criação de novas contas integrada ao Django
 if (document.getElementById("btnEfetuarCadastro")) {
-  document.getElementById("btnEfetuarCadastro").onclick = () => {
+  document.getElementById("btnEfetuarCadastro").onclick = async () => { 
     const email = document.getElementById("cadEmail").value.trim();
     const senha = document.getElementById("cadSenha").value;
     const conf = document.getElementById("cadConfirmarSenha").value;
 
     if (!email.includes("@") || senha.length < 4 || senha !== conf) {
-      alert("Preencha todos os campos obrigatórios");
+      alert("Preencha todos os campos obrigatórios corretamente e verifique as senhas.");
       return;
     }
 
-    usuariosCadastrados.push({ email: email, senha: senha, bloqueado: false });
-    localStorage.setItem("usuarios_teste", JSON.stringify(usuariosCadastrados));
-    alert("Conta criada! Pode realizar o login.");
-    areaCadastro.style.display = "none";
-    areaLogin.style.display = "block";
+    const usernameInput = email.split("@")[0];
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/agenda/api/usuario/registrar/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: usernameInput,
+          email: email,
+          password: senha
+        })
+      });
+
+      const dados = await response.json();
+
+      if (!response.ok) {
+        if (dados.erros) {
+          const primeiroErro = Object.values(dados.erros)[0];
+          alert(primeiroErro);
+        } else {
+          alert(dados.erro || "Erro ao realizar cadastro.");
+        }
+        return;
+      }
+
+      alert("Conta criada com sucesso! Pode realizar o login.");
+      
+      document.getElementById("cadEmail").value = "";
+      document.getElementById("cadSenha").value = "";
+      document.getElementById("cadConfirmarSenha").value = "";
+
+      areaCadastro.style.display = "none";
+      areaLogin.style.display = "block";
+
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      alert("Não foi possível conectar ao servidor.");
+    }
   };
 }
 
-// Proteção de página restrita e checagem ao carregar (CA07 / CA08)
+// Proteção de página restrita e checagem ao carregar o DOM
 document.addEventListener("DOMContentLoaded", () => {
   const logado = localStorage.getItem("usuario_logado");
   const permanente = localStorage.getItem("sessao_permanente");
 
   if (logado === "true" && permanente === "true") {
     if (authModal) authModal.style.display = "none";
+    carregarContatosDoBanco();
   } else {
     localStorage.removeItem("usuario_logado");
+    localStorage.removeItem("token_jwt");
     if (authModal) authModal.style.display = "block";
   }
+
+  atualizarSincronizacao();
+  setInterval(atualizarSincronizacao, 60000);
 });
 
-
-// CONTROLE DE LOGOUT (ENCERRAR CONTA)
+// CONTROLE DE LOGOUT (ENCERRAR CONTA E LIMPAR TOKENS)
 if (document.getElementById("btnLogout")) {
   document.getElementById("btnLogout").onclick = (e) => {
     e.preventDefault();
@@ -520,35 +577,19 @@ if (document.getElementById("btnLogout")) {
     const confirmarSair = confirm("Deseja realmente sair da sua conta?");
     if (!confirmarSair) return;
 
-    // Limpa tokens e chaves do armazenamento local
     localStorage.removeItem("usuario_logado");
     localStorage.removeItem("sessao_permanente");
     localStorage.removeItem("contaSelecionada");
+    localStorage.removeItem("token_jwt"); // Limpeza total da credencial do token
 
-    // Reseta textos padrão do cabeçalho
-    if (document.getElementById("emailConta")) {
-      document.getElementById("emailConta").textContent = "usuario@exemplo.com";
-    }
-    if (document.getElementById("saudacao")) {
-      document.getElementById("saudacao").textContent = "Olá!";
-    }
+    if (document.getElementById("emailConta")) document.getElementById("emailConta").textContent = "usuario@exemplo.com";
+    if (document.getElementById("saudacao")) document.getElementById("saudacao").textContent = "Olá!";
 
-    // Reseta inputs por segurança
     if (document.getElementById("loginEmail")) document.getElementById("loginEmail").value = "";
     if (document.getElementById("loginSenha")) document.getElementById("loginSenha").value = "";
     if (document.getElementById("lembrarMe")) document.getElementById("lembrarMe").checked = false;
 
-    // Fecha os menus suspensos caso abertos
-    const menuConta = document.getElementById("menuConta");
-    const overlay = document.getElementById("overlay");
-    if (menuConta) menuConta.classList.remove("ativo");
-    if (overlay) overlay.classList.remove("ativo");
-
-    // Bloqueia novamente a tela com o modal de autenticação
-    const authModal = document.getElementById("authModal");
-    const areaLogin = document.getElementById("area-login");
-    const areaCadastro = document.getElementById("area-cadastro");
-    const areaRecuperar = document.getElementById("area-recuperar");
+    fecharOverlay();
 
     if (authModal) {
       authModal.style.display = "block";
@@ -561,9 +602,10 @@ if (document.getElementById("btnLogout")) {
   };
 }
 
-// Simulação manual de expiração de sessão (CA07 - Cenário 14)
+// Forçar expiração por inatividade
 window.expirarSessaoInatividade = function() {
   localStorage.removeItem("usuario_logado");
+  localStorage.removeItem("token_jwt");
   if (authModal) authModal.style.display = "block";
   alert("Sessão expirada");
 };
