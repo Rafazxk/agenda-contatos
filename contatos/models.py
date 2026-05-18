@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User 
 
 
 class Contato(models.Model):
@@ -7,7 +8,6 @@ class Contato(models.Model):
     telefone = models.CharField(max_length=20)
     
     # RF01 e RF02: Frequência de contato desejada
-    # escolhas fixas 
     OPCOES_FREQUENCIA = [
         ('semanal', 'Semanal'),
         ('quinzenal', 'Quinzenal'),
@@ -19,6 +19,9 @@ class Contato(models.Model):
         choices=OPCOES_FREQUENCIA,
         default='mensal'
     )
+
+   
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contatos')
 
     def __str__(self):
         return self.nome

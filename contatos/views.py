@@ -9,7 +9,7 @@ from .models import Contato
 from functools import wraps
 from django.contrib.auth.models import User
 
-# decorador de autenticacao jwt
+#decorador de autenticação jwt
 
 def jwt_required(view_func):
     @wraps(view_func)
@@ -33,7 +33,7 @@ def jwt_required(view_func):
     return _wrapped_view
 
 
-# funcao auxiliar de validacao
+# função auxioliar de validação
 
 def validar_dados_contato(dados):
     erros = {}
@@ -59,8 +59,8 @@ def validar_dados_contato(dados):
     return erros
 
 
+# endpoints da api - crud + login
 
-#  endpoints da api (crud + login)
 
 @csrf_exempt
 @jwt_required  
@@ -69,7 +69,6 @@ def criar_contato_api(request):
         try:
             dados = json.loads(request.body)
             
-          
             erros = validar_dados_contato(dados)
             if erros:
                 return JsonResponse({"erros": erros}, status=400)
@@ -77,7 +76,8 @@ def criar_contato_api(request):
             novo_contato = Contato.objects.create(
                 nome=dados.get('nome').strip(),
                 telefone=dados.get('telefone'),
-                frequencia=dados.get('frequencia', 'mensal')
+                frequencia=dados.get('frequencia', 'mensal'),
+                usuario=request.user 
             )
             return JsonResponse({
                 "id": novo_contato.id,
@@ -90,9 +90,8 @@ def criar_contato_api(request):
 
 
 @jwt_required 
-
 def listar_contatos_api(request):
-    contatos = Contato.objects.all()
+    contatos = Contato.objects.filter(usuario=request.user)
     
     dados = []
     for contato in contatos:
@@ -111,10 +110,9 @@ def listar_contatos_api(request):
 def editar_contatos_api(request, id):
     if request.method == 'PUT':
         try:
-            contato = Contato.objects.get(id=id)
+            contato = Contato.objects.get(id=id, usuario=request.user)
             dados = json.loads(request.body)
             
-           
             dados_finais = {
                 'nome': dados.get('nome', contato.nome),
                 'telefone': dados.get('telefone', contato.telefone),
@@ -132,11 +130,11 @@ def editar_contatos_api(request, id):
             
             return JsonResponse({
                 "id": contato.id,
-                "mensagem": "Contato atualizado com sucesso!"
+                "mensagem": "Contato updated com sucesso!"
             }, status=200)
             
         except Contato.DoesNotExist:
-            return JsonResponse({"erro": "Contato não encontrado."}, status=404)
+            return JsonResponse({"erro": "Contato não encontrado ou você não tem permissão para editá-lo."}, status=404)
         except json.JSONDecodeError:
             return JsonResponse({"erro": "JSON malformatado enviado no corpo da requisição."}, status=400)
         except Exception as e:
@@ -146,11 +144,11 @@ def editar_contatos_api(request, id):
 
 
 @csrf_exempt
-@jwt_required  # Protegendo a rota
+@jwt_required  
 def excluir_contatos_api(request, id):
     if request.method == 'DELETE':
         try:
-            contato = Contato.objects.get(id=id)
+            contato = Contato.objects.get(id=id, usuario=request.user)
             contato.delete()
             
             return JsonResponse({
@@ -158,13 +156,16 @@ def excluir_contatos_api(request, id):
             }, status=200)
             
         except Contato.DoesNotExist:
-            return JsonResponse({"erro": "Contato não encontrado."}, status=404)
+            return JsonResponse({"erro": "Contato não encontrado ou você não tem permissão para excluí-lo."}, status=404)
         except Exception as e:
             return JsonResponse({"erro": str(e)}, status=400)
             
     return JsonResponse({"erro": "Método não permitido."}, status=405)
 
-#cadastro do usuario 
+
+
+# autenticação e criação de usuários
+
 
 @csrf_exempt 
 def cadastro_usuario_api(request):
@@ -175,20 +176,16 @@ def cadastro_usuario_api(request):
             email = dados.get('email')
             password = dados.get('password')
             
-            # --- VALIDAÇÃO DOS CAMPOS DE CADASTRO ---
             erros = {}
-            
             if not username:
                 erros['username'] = 'O campo username é obrigatório.'
             elif len(str(username).strip()) < 3:
                 erros['username'] = 'O username deve ter pelo menos 3 caracteres.'
-            # Verifica se o username já existe no banco
             elif User.objects.filter(username=username).exists():
                 erros['username'] = 'Este nome de usuário já está em uso.'
                 
             if not email:
                 erros['email'] = 'O campo email é obrigatório.'
-            # Validação simples de email e verificação de duplicidade
             elif User.objects.filter(email=email).exists():
                 erros['email'] = 'Este e-mail já está cadastrado.'
                 
@@ -197,12 +194,9 @@ def cadastro_usuario_api(request):
             elif len(str(password)) < 6:
                 erros['password'] = 'A senha deve ter pelo menos 6 caracteres.'
                 
-            # Se houver qualquer erro de validação, barra aqui
             if erros:
                 return JsonResponse({"erros": erros}, status=400)
-            # ----------------------------------------
             
-            # Criando o usuário com a senha criptografada de forma segura
             novo_usuario = User.objects.create_user(
                 username=username.strip(),
                 email=email.strip(),
@@ -222,8 +216,6 @@ def cadastro_usuario_api(request):
     return JsonResponse({"erro": "Método não permitido."}, status=405)
 
 
-
-# login do usuario
 @csrf_exempt  
 def login_usuario_api(request):
     if request.method == 'POST':
