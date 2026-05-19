@@ -1,6 +1,6 @@
 ## Arquitetura e Tecnologias
 
-* **Back-end:** Django (Python), Arquitetura baseada em Controller/Service para separação de responsabilidades.
+* **Back-end:** Django (Python), Arquitetura baseada em separação de responsabilidades.
 * **Front-end:** HTML5, CSS3 (variáveis de ambiente para temas dinâmicos), JavaScript (Vanilla ES6).
 * **Segurança:** Autenticação customizada via JWT (Bcrypt para hashing de senhas).
 * **Banco de Dados:** PostgreSQL.
@@ -15,7 +15,7 @@
 
    **Entre na pasta do projeto:**
    ```bash
-    cd agenda
+    cd agenda-contatos
    ```
 
 2. **Configure o ambiente virtual(Venv):**<br>
